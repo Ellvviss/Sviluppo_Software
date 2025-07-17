@@ -1,5 +1,6 @@
 # GitHub Actions CI/CD Pipeline
 # This workflow builds, tests, and deploys a Python package and Docker image.
+#description: This workflow is triggered on pushes to branches and performs the following steps:
 name: CI/CD Pipeline
 
 on:

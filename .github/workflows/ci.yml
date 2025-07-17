@@ -33,6 +33,9 @@ jobs:
         echo "KAGGLE_USERNAME: $KAGGLE_USERNAME"
         echo "KAGGLE_KEY: $KAGGLE_KEY"
         make test
+      env:
+        KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+        KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
 
     - name: Building Package
       run: |

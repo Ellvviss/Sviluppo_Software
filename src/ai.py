@@ -1,9 +1,10 @@
-import os, time
+import os, time,shutil
 import torch
 import kagglehub
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
+from pathlib import Path
 import torch.optim as optim
 import torch.nn as nn
 import numpy as np
@@ -106,10 +107,10 @@ def download_data(link="tongpython/cat-and-dog", path=DATA_DIR):
 
 
 def eda(data_path=DATA_DIR, path_output=RESULTS_DIR, num_sample_img:int=1):
-    train_data = ImageFolder(root=data_path+"/train", transform=TRANSFORM)
+    train_data = ImageFolder(root=data_path+"/training_set/training_set", transform=TRANSFORM)
     train_loader = DataLoader(train_data, batch_size=BATCH, shuffle=True)
     
-    test_data = ImageFolder(root=data_path+"/test", transform=TRANSFORM)
+    test_data = ImageFolder(root=data_path+"/test_set/test_set", transform=TRANSFORM)
     _ = DataLoader(test_data, batch_size=BATCH, shuffle=True)
 
     print("EDA Reports:")
@@ -154,7 +155,7 @@ def train_save(model=None, model_path=PERSISTENT_DATA, data_path=DATA_DIR, epoch
         if os.path.exists(model_path):
             print("[INFO] Modello non trovato. Addestramento in corso...")
             model.load_state_dict(torch.load(model_path))
-    train_data = ImageFolder(root=data_path+"/train", transform=TRANSFORM)
+    train_data = ImageFolder(root=data_path+"/training_set/training_set", transform=TRANSFORM)
     train_loader = DataLoader(train_data, batch_size=BATCH, shuffle=True)
 
     optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -185,7 +186,7 @@ def evaluate(model=None, model_path=PERSISTENT_DATA, data_path=DATA_DIR, path_ou
         if os.path.exists(model_path):
             print("[INFO] Modello non trovato. Addestramento in corso...")
             model.load_state_dict(torch.load(model_path))
-    test_data = ImageFolder(root=data_path+"/test", transform=TRANSFORM)
+    test_data = ImageFolder(root=data_path+"/test_set/test_set", transform=TRANSFORM)
     test_loader = DataLoader(test_data, batch_size=BATCH, shuffle=False)
     correct = 0
     total = 0

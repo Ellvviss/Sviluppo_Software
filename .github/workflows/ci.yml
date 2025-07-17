@@ -30,6 +30,8 @@ jobs:
 
     - name: Testing
       run: |
+        echo "KAGGLE_USERNAME: $KAGGLE_USERNAME"
+        echo "KAGGLE_KEY: $KAGGLE_KEY"
         make test
 
     - name: Building Package

@@ -1,15 +1,16 @@
 import os, shutil
 import pytest
-from src.ai import eda, train_save, evaluate
+from src.ai import eda, train_save, evaluate, download_data
 
 RESULTS : str = "./results"
 MODELPATH_SAVE : str = "./results/dogs_vs_cats_model.pth"
 
 @pytest.fixture(autouse=True)
 def setup_and_cleanup():
+    download_data()
     yield
     shutil.rmtree("./results/", ignore_errors=True)
-    # shutil.rmtree("./data/", ignore_errors=True)
+    shutil.rmtree("./data/", ignore_errors=True)
     shutil.rmtree("./persistent_data/", ignore_errors=True)
 
 def test_eda():

@@ -1,5 +1,6 @@
 import os, time
 import torch
+import kagglehub
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
@@ -8,8 +9,10 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from dotenv import load_dotenv
 from tqdm import tqdm
 from sklearn.metrics import classification_report, confusion_matrix
+
 
 DATA_DIR = './data/dogs_vs_cats'
 PERSISTENT_DATA = './persistent_data'
@@ -51,6 +54,56 @@ class SimpleCNN(nn.Module):
         x = self.conv_layers(x)
         x = self.fc_layers(x)
         return x
+
+
+def is_directory_empty(path: str, valid_extensions: tuple = ('.jpg', '.jpeg', '.png', '.bmp', '.csv')) -> bool:
+    if not os.path.exists(path):
+        return True
+    for _,_, files in os.walk(path):
+        for file in files:
+            if file.lower().endswith(valid_extensions):
+                return False
+    return True
+
+
+def download_data(link="tongpython/cat-and-dog", path=DATA_DIR):
+    load_dotenv()
+    try:
+        user = kagglehub.whoami()  # Verifica le credenziali
+        print(f"Autenticated as: {user}")
+    except Exception as e:
+        print(f"Autentication Error: {e}")
+        raise SystemExit(1) from e
+
+    if (path is not None):
+        os.makedirs(path, exist_ok=True)
+
+    try:
+        cache_path = kagglehub.dataset_download(
+            link,
+            force_download=True
+        )
+        print(f"Dataset scaricato nella cache: {cache_path}")
+        for file in os.listdir(cache_path):
+            src = os.path.join(cache_path, file)
+            dst = os.path.join(path, file)
+
+            if os.path.isdir(src):
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+            else:
+                shutil.copy2(src, dst)
+        print(f" Dataset finale in: {path}")
+        # Pulizia Cache
+        user, dataset_name = link.split('/')
+        cache_root = Path.home() / ".cache" / "kagglehub" / "datasets" / user / dataset_name
+        shutil.rmtree(cache_root, ignore_errors=True)
+        print(f"Pulizia cache: {cache_path}")
+    except Exception as e:
+        print(f"Errore durante l'operazione: {str(e)}")
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        raise SystemExit(1) from e
+
 
 def eda(data_path=DATA_DIR, path_output=RESULTS_DIR, num_sample_img:int=1):
     train_data = ImageFolder(root=data_path+"/train", transform=TRANSFORM)
@@ -184,6 +237,9 @@ def inference(img, model=None):
         return 'Cat' if predicted.item() == 0 else 'Dog'
 
 if __name__=="__main__":
+    if is_directory_empty(DATA_DIR):
+        print("[INFO] Downloading dataset...")
+        download_data()
     eda()
     m = SimpleCNN()
     train_save(m)

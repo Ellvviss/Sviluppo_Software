@@ -1,0 +1,11 @@
+pylint
+pytest
+pytest-cov
+torch
+torchvision
+matplotlib
+seaborn
+tqdm
+scikit-learn
+gradio
+Pillow
